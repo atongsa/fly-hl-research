@@ -58,7 +58,13 @@ def infer(model, window, funding):
     with torch.no_grad():
         prob = torch.softmax(model(img, ex)[0], dim=0)
     action = "short" if int(prob.argmax()) == 1 and float(prob[1]) > 0.55 else "flat"
-    return {"action": action, "p_flat": float(prob[0]), "p_short": float(prob[1]), "last_close": float(window[-1]["c"]) if window else None, "funding": funding}
+    return {
+        "action": action,
+        "p_flat": float(prob[0]),
+        "p_short": float(prob[1]),
+        "last_close": float(window[-1]["c"]) if window else None,
+        "funding": funding,
+    }
 
 
 def paper_step(decision, paper):
@@ -124,6 +130,7 @@ def main() -> int:
     mode = os.environ.get("MODE", "paper").lower()
     coin = os.environ.get("COIN", "BTC")
     poll = int(os.environ.get("POLL_SECONDS", "30"))
+    max_steps = int(os.environ.get("PAPER_STEPS") or os.environ.get("MAX_STEPS") or "0")
     model = VisionLoopNet()
     ckpt = ROOT / "models" / "vision_loop.pt"
     if ckpt.exists():
@@ -134,7 +141,8 @@ def main() -> int:
         print("WARNING: no checkpoint, untrained weights")
     model.eval()
     paper = {"equity": 1000.0, "position": 0.0, "size_btc": 0.0, "events": 0}
-    print(f"loop mode={mode} coin={coin} poll={poll}s  Ctrl-C to stop")
+    print(f"loop mode={mode} coin={coin} poll={poll}s paper_steps={max_steps or 'inf'}  Ctrl-C to stop")
+    step = 0
     while True:
         try:
             window, funding = latest_window(coin)
@@ -144,16 +152,33 @@ def main() -> int:
                 ctx = contexts(coin)
             except Exception:
                 pass
-            payload = {"mode": mode, "coin": coin, "decision": decision, "mark": (ctx.get("ctx") or {}).get("markPx"), "funding": funding}
+            payload = {
+                "mode": mode,
+                "coin": coin,
+                "decision": decision,
+                "mark": (ctx.get("ctx") or {}).get("markPx"),
+                "funding": funding,
+                "step": step + 1,
+            }
             if mode == "live":
                 if os.environ.get("CONFIRM_LIVE") != "I_UNDERSTAND_THE_RISK":
                     raise SystemExit("set CONFIRM_LIVE=I_UNDERSTAND_THE_RISK")
                 payload["execution"] = live_step(decision, coin)
             else:
                 paper = paper_step(decision, paper)
-                payload["paper"] = {"equity": paper["equity"], "position": paper["position"], "upnl": paper.get("upnl", 0), "events": paper["events"], "last_event": paper.get("last_event")}
+                payload["paper"] = {
+                    "equity": paper["equity"],
+                    "position": paper["position"],
+                    "upnl": paper.get("upnl", 0),
+                    "events": paper["events"],
+                    "last_event": paper.get("last_event"),
+                }
             print(payload.get("execution") or payload.get("paper"), decision)
             write_state(payload)
+            step += 1
+            if mode != "live" and max_steps and step >= max_steps:
+                print(f"paper run complete ({step} steps)")
+                return 0
         except KeyboardInterrupt:
             print("stop")
             return 0
