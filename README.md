@@ -40,13 +40,14 @@ Copy `.env.example` to `.env` and fill:
 Default mode is `paper`. Live mainnet also needs:
 
 ```bash
-export MODE=live
-export CONFIRM_LIVE=I_UNDERSTAND_THE_RISK
-export HL_NETWORK=mainnet
+cp .env.example .env   # refill keys each live session
+# edit .env
 bash scripts/03_trade.sh
 ```
 
-Caps default to **2x leverage** and **$50 notional**. Raise them only if you accept liquidation risk. Never commit `.env`.
+When `MODE=live`, the script **deletes `.env` on exit** (normal stop, error, or Ctrl-C) and unsets `HL_AGENT_KEY`. Next live run you must copy `.env.example` and fill again. `.env.example` is kept. To skip the wipe once: `KEEP_ENV=1`.
+
+You can also export the key in the shell and never write `.env`. Caps default to **2x leverage** and **$50 notional**. Never commit `.env`.
 
 ## What “vision loop” means here
 
