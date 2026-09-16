@@ -3,7 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>fly-hl-research dashboard</title>
+  <title>fly-hl dashboard</title>
+  <meta name="theme-color" content="#07080f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="fly-hl" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -38,5 +45,10 @@
   </p>
   <script src="./config.js"></script>
   <script src="./app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(function () {});
+    }
+  </script>
 </body>
 </html>
