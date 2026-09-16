@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>fly-hl-research dashboard</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header>
+    <h1>fly-hl vision loop</h1>
+    <p>Public Hyperliquid BTC + local model state. Not a live brokerage UI.</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Model / process</h2>
+      <div class="row"><span class="k">mode</span><span class="v" id="mode">—</span></div>
+      <div class="row"><span class="k">action</span><span class="v" id="action">—</span></div>
+      <div class="row"><span class="k">p(short)</span><span class="v" id="pshort">—</span></div>
+      <div class="row"><span class="k">updated</span><span class="v" id="updated">—</span></div>
+      <div class="row"><span class="k">event</span><span class="v" id="event">—</span></div>
+      <canvas id="fly" width="640" height="220" aria-label="vision loop sketch"></canvas>
+    </section>
+    <section class="card">
+      <h2>Hyperliquid public BTC-PERP</h2>
+      <div class="row"><span class="k">mark</span><span class="v" id="mark">—</span></div>
+      <div class="row"><span class="k">funding</span><span class="v" id="funding">—</span></div>
+      <div class="row"><span class="k">open interest</span><span class="v" id="oi">—</span></div>
+      <div class="row"><span class="k">account (public)</span><span class="v" id="acct">—</span></div>
+      <div class="row"><span class="k">position szi</span><span class="v" id="szi">—</span></div>
+      <p class="k" id="err"></p>
+    </section>
+  </main>
+  <p class="disclaimer">
+    MaleCNS v1.0 © FlyEM / Janelia / Cambridge / MRC LMB / Google Research, CC BY 4.0.
+    Research dashboard only. Enable Pages from the <code>docs/</code> folder.
+    Source: <a href="https://github.com/atongsa/fly-hl-research">atongsa/fly-hl-research</a>
+  </p>
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
