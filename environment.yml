@@ -1,0 +1,17 @@
+name: flyhl
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - pyarrow
+  - pillow
+  - pytorch
+  - cpuonly
+  - requests
+  - pip:
+      - hyperliquid-python-sdk
+      - eth-account
+      - python-dotenv

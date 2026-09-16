@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+data/
+models/
+runs/
+*.feather
+*.npz
+*.pt
+.venv/
+wandb/
