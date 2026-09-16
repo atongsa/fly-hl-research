@@ -47,7 +47,29 @@ Open http://127.0.0.1:8765/
 
 Or on GitHub: **Settings → Pages → Deploy from a branch → `/docs`**.
 
-### 3. Real Hyperliquid orders (optional)
+Hosted URL after Pages is on:
+
+https://atongsa.github.io/fly-hl-research/
+
+### 3. Save the dashboard on the desktop or iPad
+
+The site is a PWA (`docs/manifest.json`). Use **https** (GitHub Pages) or localhost.
+
+**Computer (Chrome or Edge)**
+
+1. Open the dashboard URL
+2. Address bar install icon, or menu → **Cast, save, and share → Install page as app**
+   (Edge: **Apps → Install this site as an app**)
+
+**iPad / iPhone (Safari only)**
+
+1. Open the dashboard in Safari
+2. **Share** (square with arrow)
+3. **Add to Home Screen** → Add
+
+You do not need the App Store or an Apple Developer fee. Updating the site updates the icon the next time it loads.
+
+### 4. Real Hyperliquid orders (optional)
 
 Only after paper looks sane.
 
