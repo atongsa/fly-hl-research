@@ -1,88 +1,108 @@
 # fly-hl-research
 
-Four-part research stack on [atongsa/fly-hl-research](https://github.com/atongsa/fly-hl-research):
+Research stack: Google/Janelia MaleCNS fly vision loop + public Hyperliquid BTC data.
 
-1. Download MaleCNS v1.0 (Google Research / HHMI Janelia) and public Hyperliquid BTC data
-2. Mamba/conda env + train a **vision-loop** model on that data
-3. Run the model (paper by default; live Hyperliquid only if you opt in)
-4. GitHub Pages dashboard for the live/paper process
+Not financial advice. Not a proven edge. Do not send this repo your seed phrase.
 
-This is an experiment. It is **not** a profitable strategy and **not** financial advice. Stonkfly-style connectome trading has not shown a durable edge.
+## Usage
 
-## Quick start
+### 1. Fake trades only (no key, no real order)
 
 ```bash
 git clone https://github.com/atongsa/fly-hl-research.git
 cd fly-hl-research
-
-# paper only: download + train + 8 paper steps, then exits
 bash scripts/00_paper_all.sh
-
-# dashboard
-bash scripts/04_pages.sh
 ```
 
-Then, if you still want live:
+This one script:
+
+1. Downloads the fly connectome annotations and public BTC data
+2. Creates the `flyhl` conda/mamba env and trains the model
+3. Makes **8 pretend decisions** (short or flat) against live public prices
+4. Writes `docs/live-state.json` and **exits**
+
+No Hyperliquid account is used. Any key in the environment is ignored.
+
+Why it stops after 8: so the script can finish by itself. It is not stuck. To pretend longer:
 
 ```bash
-cp .env.example .env   # fill keys; MODE=live; CONFIRM_LIVE=I_UNDERSTAND_THE_RISK
+PAPER_STEPS=20 bash scripts/00_paper_all.sh
+```
+
+To pretend until you press Ctrl-C:
+
+```bash
 bash scripts/03_trade.sh
 ```
 
-Pieces if you prefer to run them apart:
+### 2. Dashboard
+
+After a paper or live run:
 
 ```bash
-bash scripts/01_download.sh
-bash scripts/02_setup_and_train.sh
-bash scripts/03_trade.sh          # paper unless MODE=live
 bash scripts/04_pages.sh
 ```
 
-Enable **Settings → Pages → Deploy from a branch → `/docs`** for the hosted dashboard.
+Open http://127.0.0.1:8765/
 
-`00_paper_all.sh` forces `MODE=paper`, ignores any agent key, and stops after `PAPER_STEPS` (default 8). More paper ticks:
+Or on GitHub: **Settings → Pages → Deploy from a branch → `/docs`**.
+
+### 3. Real Hyperliquid orders (optional)
+
+Only after paper looks sane.
 
 ```bash
-PAPER_STEPS=20 POLL_SECONDS=5 bash scripts/00_paper_all.sh
+cp .env.example .env
 ```
 
-## Live trading (optional, dangerous)
-
-Copy `.env.example` to `.env` and fill:
-
-- `HL_AGENT_KEY` — Hyperliquid **agent / API wallet** private key (cannot withdraw if you created it as an agent)
-- `HL_ACCOUNT_ADDRESS` — your master account `0x…`
-
-When `MODE=live`, the script **deletes `.env` on exit** (normal stop, error, or Ctrl-C) and unsets `HL_AGENT_KEY`. Next live run you must copy `.env.example` and fill again. To skip the wipe once: `KEEP_ENV=1`.
-
-You can also export the key in the shell and never write `.env`. Caps default to **2x leverage** and **$50 notional**. Never commit `.env`.
-
-## What “vision loop” means here
-
-MaleCNS vision cells (photoreceptors R1–R8, lamina L1–L5, T4/T5 motion, LC looming, giant fiber `DNp01`) are used as a **frozen encoder motif**.
-
-- Candles are drawn as a small RGB image (the fly “sees” the chart).
-- Funding and recent tape are extra channels.
-- A tiny trained head maps encoder activity → `{flat, short}`.
-- Full 166k-cell simulation is **not** run (that needs many GB RAM).
-
-## Data sources
-
-| Source | License | URL |
-|---|---|---|
-| MaleCNS v1.0 flat connectome | CC BY 4.0 | https://male-cns.janelia.org/download/ |
-| Hyperliquid public info API | exchange ToS | https://api.hyperliquid.xyz/info |
-
-Cite Berg et al., *Cell* 2026 (MaleCNS) if you publish results.
-
-## Layout
+Edit `.env`:
 
 ```
-scripts/00_paper_all.sh         # paper: 1+2+bounded 3
-scripts/01_download.sh
-scripts/02_setup_and_train.sh
-scripts/03_trade.sh             # paper or live
-scripts/04_pages.sh             # dashboard
-src/flyhl/
-docs/
+MODE=live
+CONFIRM_LIVE=I_UNDERSTAND_THE_RISK
+HL_NETWORK=testnet
+HL_ACCOUNT_ADDRESS=0xYourMaster
+HL_AGENT_KEY=0xYourAgentKey
+MAX_NOTIONAL_USD=50
 ```
+
+Then:
+
+```bash
+bash scripts/03_trade.sh
+```
+
+Use an **agent wallet** key, not your seed. Default size cap is $50. Prefer `testnet` first.
+
+When this live run ends (or you hit Ctrl-C), `.env` is **deleted**. Next time copy `.env.example` again and refill. To keep the file once: `KEEP_ENV=1`.
+
+You can export the key in the shell instead of writing `.env`.
+
+### Scripts
+
+| Script | What it does |
+|---|---|
+| `scripts/00_paper_all.sh` | Download + train + 8 fake trades, then stop |
+| `scripts/01_download.sh` | Data only |
+| `scripts/02_setup_and_train.sh` | Env + train only |
+| `scripts/03_trade.sh` | Fake trades, or real trades if `.env` says `MODE=live` |
+| `scripts/04_pages.sh` | Local dashboard |
+
+### Hardware
+
+Laptop is enough: ~4 CPU cores, 8 GB RAM, 10 GB disk. No GPU required.
+
+## What the model is
+
+Candles are drawn as a small chart image. A tiny net shaped like the fly optic-lobe cascade (R1–R8 → L1/L2 → T4/T5 → LC → giant fiber) outputs `flat` or `short`.
+
+It does **not** simulate all 166k MaleCNS neurons.
+
+## Data
+
+| Source | License |
+|---|---|
+| [MaleCNS v1.0](https://male-cns.janelia.org/download/) | CC BY 4.0 |
+| [Hyperliquid public info API](https://api.hyperliquid.xyz/info) | Exchange ToS |
+
+Cite Berg et al., *Cell* 2026 if you publish results.
